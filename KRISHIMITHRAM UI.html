@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishimithram</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts for Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f3f4f6;
+        }
+
+        .gradient-bg {
+            background-image: linear-gradient(to right, #4ade80, #16a34a);
+        }
+        .gradient-btn {
+            background-image: linear-gradient(to right, #60a5fa, #3b82f6);
+        }
+
+        .lang-switch-btn.active {
+            background-color: #4ade80;
+            color: white;
+            border-color: #4ade80;
+        }
+
+        .taskbar-link {
+            transition: color 0.3s ease, transform 0.3s ease;
+            position: relative;
+        }
+
+        .taskbar-link.active .icon,
+        .taskbar-link.active .text {
+            color: #4ade80;
+            transform: translateY(-4px);
+        }
+
+        /* Chat-specific styles */
+        .chat-message.user {
+            background-color: #d1fae5;
+            align-self: flex-end;
+            text-align: right;
+            border-bottom-right-radius: 0;
+        }
+
+        .chat-message.assistant {
+            background-color: #e5e7eb;
+            align-self: flex-start;
+            text-align: left;
+            border-bottom-left-radius: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center">
+    <div class="relative w-full max-w-sm mx-auto bg-white shadow-xl rounded-lg overflow-hidden my-4 flex flex-col min-h-[90vh]">
+
+        <!-- Top Bar -->
+        <div class="gradient-bg p-4 flex justify-between items-center text-white">
+            <a href="#home"><i class="fas fa-home text-xl"></i></a>
+            <h1 class="text-xl font-bold" id="app-title" data-i18n="app-title">Krishimithram</h1>
+            <i class="fas fa-bell text-xl"></i>
+        </div>
+
+        <!-- Main Content Area -->
+        <div id="screen-container" class="p-4 flex-grow overflow-y-auto">
+            <!-- Screens will be rendered here -->
+        </div>
+
+        <!-- Bottom Taskbar -->
+        <div class="w-full bg-white border-t border-gray-200">
+            <nav class="flex justify-around items-center h-16">
+                <a href="#home" class="taskbar-link flex flex-col items-center justify-center p-2 text-gray-400">
+                    <i class="fas fa-home text-xl icon transition-transform"></i>
+                    <span class="text-xs mt-1 text transition-colors" data-i18n="nav.home">Home</span>
+                </a>
+                <a href="#crop-doctor" class="taskbar-link flex flex-col items-center justify-center p-2 text-gray-400">
+                    <i class="fas fa-qrcode text-xl icon transition-transform"></i>
+                    <span class="text-xs mt-1 text transition-colors" data-i18n="nav.scan">Scan</span>
+                </a>
+                <a href="#analytics" class="taskbar-link flex flex-col items-center justify-center p-2 text-gray-400">
+                    <i class="fas fa-chart-pie text-xl icon transition-transform"></i>
+                    <span class="text-xs mt-1 text transition-colors" data-i18n="nav.analytics">Analytics</span>
+                </a>
+                <a href="#chat" class="taskbar-link flex flex-col items-center justify-center p-2 text-gray-400">
+                    <i class="fas fa-comments text-xl icon transition-transform"></i>
+                    <span class="text-xs mt-1 text transition-colors" data-i18n="nav.chat">Chat</span>
+                </a>
+                <a href="#profile" class="taskbar-link flex flex-col items-center justify-center p-2 text-gray-400">
+                    <i class="fas fa-user-circle text-xl icon transition-transform"></i>
+                    <span class="text-xs mt-1 text transition-colors" data-i18n="nav.profile">Profile</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const screenContainer = document.getElementById('screen-container');
+            let currentLang = 'en';
+
+            const languages = {
+                en: {
+                    "app-title": "Krishimithram",
+                    nav: {
+                        home: "Home",
+                        scan: "Scan",
+                        analytics: "Analytics",
+                        chat: "Chat",
+                        profile: "Profile"
+                    },
+                    home: {
+                        "header-title": "Krishimithram",
+                        "welcome-message": "Namaskaram, Rajesh!",
+                        "tagline": "Your AI-powered farming companion",
+                        "weather-title": "Today's Weather",
+                        "location": "Kochi, Kerala",
+                        "temp": "28°C",
+                        "condition": "Partly Cloudy",
+                        "weather-tip": "Good for irrigation",
+                        "humidity": "75%",
+                        "humidity-label": "Humidity",
+                        "wind-speed": "12 km/h",
+                        "wind-speed-label": "Wind Speed",
+                        "quick-actions-title": "Quick Actions",
+                        action: {
+                            "scan-plant": "Scan Plant",
+                            "weather-advisor": "Weather Advisor",
+                            "market-prices": "Market Prices",
+                            "fertilizer-guide": "Fertilizer Guide",
+                            "educational-videos": "Educational Videos",
+                            "q-a-assistant": "Q&A Assistant"
+                        }
+                    },
+                    "crop-doctor": {
+                        "title": "AI Crop Doctor",
+                        "intro-title": "Take a photo of your plant to get an instant AI diagnosis",
+                        "intro-text1": "AI detects diseases and pests instantly",
+                        "intro-text2": "Get natural and chemical remedies",
+                        "intro-text3": "Instant help with no waiting for an expert",
+                        "take-picture-btn": "Take a Picture",
+                        "retake-btn": "Retake Photo",
+                        "diagnose-btn": "Diagnose",
+                        "result-heading": "Diagnosis Result",
+                        "disease-title": "Disease: <span class='text-red-500 font-bold'>Tomato Leaf Blight</span>",
+                        "remedies-heading": "Suggested Remedies",
+                        "organic-heading": "Organic Remedies",
+                        "organic-remedy1": "1. Mix baking soda (1 tbsp) with vegetable oil (3 tsp) and water (1 gallon). Spray on leaves.",
+                        "organic-remedy2": "2. Use Neem oil spray (2 tsp per liter of water) on affected areas.",
+                        "chemical-heading": "Chemical Remedies",
+                        "chemical-remedy1": "1. Apply a fungicide containing copper hydroxide or chlorothalonil.",
+                        "chemical-remedy2": "2. Consult a local agronomist for specific chemical recommendations."
+                    },
+                    "weather-advisor": {
+                        "title": "Weather & Watering Advisor",
+                        "live-updates-title": "Live updates for Kochi, Kerala",
+                        "condition-good": "Good for cultivation today",
+                        "humidity": "Humidity",
+                        "wind-speed": "Wind Speed",
+                        "pressure": "Pressure",
+                        "forecast-title": "Forecast for the next 7 days",
+                        "day-col": "Day",
+                        "date-col": "Date",
+                        "temp-col": "Temp",
+                        "condition-col": "Condition",
+                        "weather-alerts-title": "Weather Alerts",
+                        "heavy-rain-warning-title": "Heavy Rainfall Warning",
+                        "heavy-rain-warning-text": "Heavy rainfall expected in coastal areas over the next 24 hours. Farmers are advised to take necessary precautions.",
+                        "strong-wind-advisory-title": "Strong Wind Advisory",
+                        "strong-wind-advisory-text": "Strong winds with gusts up to 50 km/h are expected. Secure crops and lightweight structures.",
+                        "watering-guide-title": "Watering Guide",
+                        "get-advice-text": "Get personalized watering advice for your crops based on the weather.",
+                        "watering-advice-title": "Watering Advice",
+                        "watering-advice-text": "Today's temperatures are high. **Increase watering frequency** and consider irrigating in the evening to reduce evaporation. Check soil moisture before watering."
+                    },
+                    analytics: {
+                        "title": "Analytics Dashboard",
+                        "market-title": "Market Price & Sales Advisor",
+                        "fertilizer-title": "Fertilizer & Soil Guide",
+                        "price-table-heading": "Real-time Prices (in ₹/kg)",
+                        "crop-col": "Crop",
+                        "price-col": "Price",
+                        "location-col": "Location",
+                        "sell-advice-heading": "Sales Advice",
+                        "sell-advice": "Prices for tomatoes are currently high in Thrissur. Consider selling there for better profit.",
+                        "connect-btn": "Connect with Wholesalers",
+                        "input-heading": "Enter Your Details",
+                        "crop-label": "Crop Type:",
+                        "soil-label": "Soil Type:",
+                        "land-label": "Land Size (in acres):",
+                        "calculate-btn": "Calculate Dosage",
+                        "result-heading": "Fertilizer Recommendation:",
+                        "result-message": "For 1 acre of sandy loam soil and coconut crops, you need to apply 5 kg of NPK fertilizer per month.",
+                        "tips-heading": "Soil Health Tips:",
+                        "tip1": "1. Add organic compost to improve soil structure.",
+                        "tip2": "2. Rotate crops to prevent nutrient depletion.",
+                        "tip3": "3. Perform soil tests annually.",
+                        "select-crop-placeholder": "Select a crop",
+                        "current-price-title": "Current Price",
+                        "contact-buyers-btn": "Contact Buyers",
+                        "buyers-title": "Buyers & Wholesalers",
+                        "call-btn": "Call",
+                        "all-fruits": "Fruits",
+                        "all-vegetables": "Vegetables",
+                        "get-customized-plan": "Get a customized plan for your crops and soil.",
+                        "crop-name-label": "Crop Name",
+                        "land-size-label": "Land Size (in acres)",
+                        "soil-type-label": "Soil Type",
+                        "select-soil-type-placeholder": "Select soil type",
+                        "sandy-soil": "Sandy Soil",
+                        "clay-soil": "Clay Soil",
+                        "loamy-soil": "Loamy Soil",
+                        "red-soil": "Red Soil",
+                        "get-advice-btn": "Get Advice"
+                    },
+                    education: {
+                        "title": "Educational Videos",
+                        "intro": "Learn modern farming techniques, pest control, and soil management with our educational video series.",
+                        "video1-title": "Organic Pest Control",
+                        "video1-desc": "Learn how to make and use natural pesticides to protect your crops.",
+                        "video2-title": "Soil Testing Basics",
+                        "video2-desc": "A simple guide to testing your soil's pH and nutrient levels at home.",
+                        "video3-title": "Drip Irrigation Setup",
+                        "video3-desc": "Step-by-step instructions on setting up an efficient drip irrigation system.",
+                        "video4-title": "Composting for Beginners",
+                        "video4-desc": "How to create your own nutrient-rich compost from kitchen and garden waste.",
+                    },
+                    chat: {
+                        "chat-header": "Farmer Q&A Assistant",
+                        "chat-placeholder": "Type your question...",
+                        "send-btn": "Send",
+                        "voice-input": "Voice Input",
+                        "voice-prompt": "Listening for your question...",
+                        "assistant-response-1": "Hello! How can I assist you with your farming needs today?",
+                        "assistant-response-2": "Neem oil is an effective organic pesticide. You can mix 2 teaspoons of Neem oil with 1 liter of water and a few drops of mild soap. Spray this solution on the affected plant leaves, especially the undersides.",
+                        "assistant-response-3": "The recommended fertilizer for tomatoes is a balanced NPK fertilizer (e.g., 10-10-10 or 14-14-14). You should apply it every 4-6 weeks during the growing season.",
+                        "assistant-response-4": "Crop rotation helps prevent soil nutrient depletion and reduces the build-up of pests and diseases specific to a single crop."
+                    },
+                    profile: {
+                        "profile-header": "My Profile",
+                        "profile-name": "Rajesh Kumar",
+                        "profile-email": "rajesh.k@krishimithram.com",
+                        "account-details": "Account Details",
+                        "location-label": "Location",
+                        "location-value": "Kochi, Kerala",
+                        "phone-label": "Phone",
+                        "phone-value": "+91 98765 43210",
+                        "member-since-label": "Member Since",
+                        "member-since-value": "Jan 2024",
+                        "language-settings": "Language Settings",
+                        "lang-en": "English",
+                        "lang-ml": "Malayalam",
+                        "logout-btn": "Logout"
+                    }
+                },
+                ml: {
+                    "app-title": "കൃഷിമിത്രം",
+                    nav: {
+                        home: "ഹോം",
+                        scan: "സ്കാൻ",
+                        analytics: "വിശകലനം",
+                        chat: "ചാറ്റ്",
+                        profile: "പ്രൊഫൈൽ"
+                    },
+                    home: {
+                        "header-title": "കൃഷിമിത്രം",
+                        "welcome-message": "നമസ്കാരം, രാജേഷ്!",
+                        "tagline": "നിങ്ങളുടെ AI-അധിഷ്ഠിത കാർഷിക കൂട്ടുകാരൻ",
+                        "weather-title": "ഇന്നത്തെ കാലാവസ്ഥ",
+                        "location": "കൊച്ചി, കേരളം",
+                        "temp": "28°C",
+                        "condition": "മേഘാവൃതമായ",
+                        "weather-tip": "നനയ്ക്കുന്നതിന് നല്ലതാണ്",
+                        "humidity": "75%",
+                        "humidity-label": "ഈർപ്പം",
+                        "wind-speed": "12 കി.മീ/മണിക്കൂർ",
+                        "wind-speed-label": "കാറ്റിന്റെ വേഗത",
+                        "quick-actions-title": "പെട്ടെന്നുള്ള പ്രവർത്തനങ്ങൾ",
+                        action: {
+                            "scan-plant": "വിള സ്കാൻ ചെയ്യുക",
+                            "weather-advisor": "കാലാവസ്ഥ ഉപദേശം",
+                            "market-prices": "വിപണി വിലകൾ",
+                            "fertilizer-guide": "വളം ഗൈഡ്",
+                            "educational-videos": "വിദ്യാഭ്യാസ വീഡിയോകൾ",
+                            "q-a-assistant": "ചോദ്യോത്തര സഹായി"
+                        }
+                    },
+                    "crop-doctor": {
+                        "title": "AI വിള ഡോക്ടർ",
+                        "intro-title": "നിങ്ങളുടെ വിളയുടെ ചിത്രം എടുക്കുക, AI രോഗനിർണയം നടത്തും",
+                        "intro-text1": "AI രോഗങ്ങളെയും കീടങ്ങളെയും തത്സമയം കണ്ടെത്തുന്നു",
+                        "intro-text2": "പ്രകൃതിദത്തവും രാസപരവുമായ പരിഹാരങ്ങൾ നേടുക",
+                        "intro-text3": "വിദഗ്ദ്ധനുവേണ്ടി കാത്തുനിൽക്കാതെ തത്സമയ സഹായം നേടുക",
+                        "take-picture-btn": "ചിത്രം എടുക്കുക",
+                        "retake-btn": "ചിത്രം വീണ്ടും എടുക്കുക",
+                        "diagnose-btn": "രോഗനിർണയം നടത്തുക",
+                        "result-heading": "രോഗനിർണയ ഫലം",
+                        "disease-title": "രോഗം: <span class='text-red-500 font-bold'>തക്കാളി ഇലക്കരി</span>",
+                        "remedies-heading": "നിർദ്ദേശിച്ച പ്രതിവിധികൾ",
+                        "organic-heading": "ജൈവ പ്രതിവിധികൾ",
+                        "organic-remedy1": "1. ബേക്കിംഗ് സോഡ (1 ടേബിൾ സ്പൂൺ) വെജിറ്റബിൾ ഓയിൽ (3 ടീസ്പൂൺ) എന്നിവ ഒരു ഗാലൻ വെള്ളത്തിൽ കലർത്തി ഇലകളിൽ തളിക്കുക.",
+                        "organic-remedy2": "2. വേപ്പെണ്ണ സ്പ്രേ (ഒരു ലിറ്റർ വെള്ളത്തിൽ 2 ടീസ്പൂൺ) ബാധിച്ച ഭാഗങ്ങളിൽ ഉപയോഗിക്കുക.",
+                        "chemical-heading": "രാസ പ്രതിവിധികൾ",
+                        "chemical-remedy1": "1. കോപ്പർ ഹൈഡ്രോക്സൈഡ് അല്ലെങ്കിൽ ക്ലോറോതലോനിൽ അടങ്ങിയ ഒരു കുമിൾനാശിനി പ്രയോഗിക്കുക.",
+                        "chemical-remedy2": "2. പ്രത്യേക രാസവസ്തുക്കളുടെ ശുപാർശകൾക്കായി ഒരു പ്രാദേശിക കാർഷിക വിദഗ്ദ്ധനെ സമീപിക്കുക."
+                    },
+                    "weather-advisor": {
+                        "title": "കാലാവസ്ഥ & നനയ്ക്കൽ ഉപദേശം",
+                        "live-updates-title": "കൊച്ചി, കേരളത്തിലെ തത്സമയ വിവരങ്ങൾ",
+                        "condition-good": "ഇന്ന് കൃഷിക്ക് അനുയോജ്യം",
+                        "humidity": "ഈർപ്പം",
+                        "wind-speed": "കാറ്റിന്റെ വേഗത",
+                        "pressure": "മർദ്ദം",
+                        "forecast-title": "അടുത്ത 7 ദിവസത്തേക്കുള്ള പ്രവചനം",
+                        "day-col": "ദിവസം",
+                        "date-col": "തീയതി",
+                        "temp-col": "താപനില",
+                        "condition-col": "സ്ഥിതി",
+                        "weather-alerts-title": "കാലാവസ്ഥാ മുന്നറിയിപ്പുകൾ",
+                        "heavy-rain-warning-title": "കനത്ത മഴ മുന്നറിയിപ്പ്",
+                        "heavy-rain-warning-text": "അടുത്ത 24 മണിക്കൂറിനുള്ളിൽ തീരപ്രദേശങ്ങളിൽ കനത്ത മഴ പ്രതീക്ഷിക്കുന്നു. കർഷകർ ആവശ്യമായ മുൻകരുതലുകൾ എടുക്കാൻ നിർദ്ദേശിക്കുന്നു.",
+                        "strong-wind-advisory-title": "ശക്തമായ കാറ്റ് മുന്നറിയിപ്പ്",
+                        "strong-wind-advisory-text": "മണിക്കൂറിൽ 50 കി.മീ വരെ വേഗതയുള്ള ശക്തമായ കാറ്റ് പ്രതീക്ഷിക്കുന്നു. വിളകളും ഭാരം കുറഞ്ഞ വസ്തുക്കളും സുരക്ഷിതമാക്കുക.",
+                        "watering-guide-title": "നനയ്ക്കൽ ഗൈഡ്",
+                        "get-advice-text": "കാലാവസ്ഥയെ അടിസ്ഥാനമാക്കി നിങ്ങളുടെ വിളകൾക്ക് വ്യക്തിഗത നനയ്ക്കൽ ഉപദേശം നേടുക.",
+                        "watering-advice-title": "നനയ്ക്കൽ ഉപദേശം",
+                        "watering-advice-text": "ഇന്നത്തെ താപനില കൂടുതലാണ്. **നനയ്ക്കൽ ഇടവേള വർദ്ധിപ്പിക്കുക** കൂടാതെ ബാഷ്പീകരണം കുറയ്ക്കുന്നതിന് വൈകുന്നേരം നനയ്ക്കുന്നത് പരിഗണിക്കുക. നനയ്ക്കുന്നതിന് മുമ്പ് മണ്ണിന്റെ ഈർപ്പം പരിശോധിക്കുക."
+                    },
+                    analytics: {
+                        "title": "വിശകലന ഡാഷ്‌ബോർഡ്",
+                        "market-title": "വിപണി വില & വിൽപ്പന ഉപദേശം",
+                        "fertilizer-title": "വളം & മണ്ണ് ഗൈഡ്",
+                        "price-table-heading": "തത്സമയ വിലകൾ (₹/kg-ൽ)",
+                        "crop-col": "വിള",
+                        "price-col": "വില",
+                        "location-col": "സ്ഥലം",
+                        "sell-advice-heading": "വിൽപ്പന ഉപദേശം",
+                        "sell-advice": "തൃശൂരിൽ തക്കാളിയുടെ വില നിലവിൽ കൂടുതലാണ്. മികച്ച ലാഭത്തിനായി അവിടെ വിൽക്കുന്നത് പരിഗണിക്കാവുന്നതാണ്.",
+                        "connect-btn": "മൊത്തക്കച്ചവടക്കാരുമായി ബന്ധപ്പെടുക",
+                        "input-heading": "നിങ്ങളുടെ വിവരങ്ങൾ നൽകുക",
+                        "crop-label": "വിളയുടെ തരം:",
+                        "soil-label": "മണ്ണിന്റെ തരം:",
+                        "land-label": "സ്ഥലത്തിന്റെ വലുപ്പം (ഏക്കറിൽ):",
+                        "calculate-btn": "വളം കണക്കാക്കുക",
+                        "result-heading": "വളം ശുപാർശ:",
+                        "result-message": "ഒരേക്കർ മണൽ കലർന്ന മണ്ണിൽ തെങ്ങിന്, പ്രതിമാസം 5 കിലോ NPK വളം പ്രയോഗിക്കേണ്ടതുണ്ട്.",
+                        "tips-heading": "മണ്ണിന്റെ ആരോഗ്യ നുറുങ്ങുകൾ:",
+                        "tip1": "1. മണ്ണിന്റെ ഘടന മെച്ചപ്പെടുത്താൻ ജൈവ കമ്പോസ്റ്റ് ചേർക്കുക.",
+                        "tip2": "2. പോഷകങ്ങൾ കുറയുന്നത് തടയാൻ വിളകൾ മാറ്റി നടുക.",
+                        "tip3": "3. വർഷം തോറും മണ്ണ് പരിശോധന നടത്തുക.",
+                        "select-crop-placeholder": "ഒരു വിള തിരഞ്ഞെടുക്കുക",
+                        "current-price-title": "നിലവിലെ വില",
+                        "contact-buyers-btn": "വാങ്ങുന്നവരുമായി ബന്ധപ്പെടുക",
+                        "buyers-title": "വാങ്ങുന്നവരും മൊത്തക്കച്ചവടക്കാരും",
+                        "call-btn": "വിളിക്കുക",
+                        "all-fruits": "പഴങ്ങൾ",
+                        "all-vegetables": "പച്ചക്കറികൾ",
+                        "get-customized-plan": "നിങ്ങളുടെ വിളകൾക്കും മണ്ണിനും അനുസരിച്ചുള്ള ഒരു വ്യക്തിഗത പ്ലാൻ നേടുക.",
+                        "crop-name-label": "വിളയുടെ പേര്",
+                        "land-size-label": "സ്ഥലത്തിന്റെ വലുപ്പം (ഏക്കറിൽ)",
+                        "soil-type-label": "മണ്ണിന്റെ തരം",
+                        "select-soil-type-placeholder": "മണ്ണിന്റെ തരം തിരഞ്ഞെടുക്കുക",
+                        "sandy-soil": "മണൽ മണ്ണ്",
+                        "clay-soil": "കളിമണ്ണ്",
+                        "loamy-soil": "ലോമി മണ്ണ്",
+                        "red-soil": "ചെമ്മണ്ണ്",
+                        "get-advice-btn": "ഉപദേശം നേടുക"
+                    },
+                    education: {
+                        "title": "വിദ്യാഭ്യാസ വീഡിയോകൾ",
+                        "intro": "നൽകിയിരിക്കുന്ന വിദ്യാഭ്യാസ വീഡിയോ സീരീസ് ഉപയോഗിച്ച് ആധുനിക കൃഷിരീതികൾ, കീടനിയന്ത്രണം, മണ്ണ് പരിപാലനം എന്നിവ പഠിക്കുക.",
+                        "video1-title": "ജൈവ കീടനിയന്ത്രണം",
+                        "video1-desc": "വിളകളെ സംരക്ഷിക്കാൻ പ്രകൃതിദത്തമായ കീടനാശിനികൾ എങ്ങനെ ഉണ്ടാക്കാമെന്നും ഉപയോഗിക്കാമെന്നും പഠിക്കുക.",
+                        "video2-title": "മണ്ണ് പരിശോധനയുടെ അടിസ്ഥാനങ്ങൾ",
+                        "video2-desc": "വീട്ടിൽ തന്നെ മണ്ണിന്റെ pH-ഉം പോഷക നിലകളും പരിശോധിക്കുന്നതിനുള്ള ഒരു ലളിതമായ ഗൈഡ്.",
+                        "video3-title": "ഡ്രിപ്പ് ഇറിഗേഷൻ സജ്ജീകരണം",
+                        "video3-desc": "കാര്യക്ഷമമായ ഒരു ഡ്രിപ്പ് ഇറിഗേഷൻ സിസ്റ്റം എങ്ങനെ സജ്ജീകരിക്കാം എന്നതിനെക്കുറിച്ചുള്ള ഘട്ടം ഘട്ടമായുള്ള നിർദ്ദേശങ്ങൾ.",
+                        "video4-title": "പുതിയതായി കമ്പോസ്റ്റിംഗ് പഠിക്കുന്നവർക്ക്",
+                        "video4-desc": "അടുക്കളയിലെയും പൂന്തോട്ടത്തിലെയും മാലിന്യങ്ങളിൽ നിന്ന് നിങ്ങളുടെ സ്വന്തം പോഷകസമൃദ്ധമായ കമ്പോസ്റ്റ് എങ്ങനെ നിർമ്മിക്കാം.",
+                    },
+                    chat: {
+                        "chat-header": "കർഷക ചോദ്യോത്തര സഹായി",
+                        "chat-placeholder": "നിങ്ങളുടെ ചോദ്യം ടൈപ്പ് ചെയ്യുക...",
+                        "send-btn": "അയയ്ക്കുക",
+                        "voice-input": "വോയിസ് ഇൻപുട്ട്",
+                        "voice-prompt": "നിങ്ങളുടെ ചോദ്യം കേൾക്കുന്നു...",
+                        "assistant-response-1": "നമസ്കാരം! നിങ്ങളുടെ കൃഷി സംബന്ധമായ ആവശ്യങ്ങൾക്ക് ഞാൻ എങ്ങനെ സഹായിക്കും?",
+                        "assistant-response-2": "വേപ്പെണ്ണ ഒരു ഫലപ്രദമായ ജൈവകീടനാശിനിയാണ്. 2 ടീസ്പൂൺ വേപ്പെണ്ണ ഒരു ലിറ്റർ വെള്ളത്തിൽ കുറച്ച് തുള്ളി നേർത്ത സോപ്പ് ചേർത്ത് കലർത്തുക. ഈ ലായനി ചെടിയുടെ ഇലകളിൽ, പ്രത്യേകിച്ച് അടിഭാഗത്ത്, തളിക്കുക.",
+                        "assistant-response-3": "തക്കാളിക്ക് ശുപാർശ ചെയ്യുന്ന വളം ഒരു സമീകൃത NPK വളമാണ് (ഉദാഹരണത്തിന്, 10-10-10 അല്ലെങ്കിൽ 14-14-14). വളരുന്ന കാലയളവിൽ ഓരോ 4-6 ആഴ്ച കൂടുമ്പോഴും ഇത് പ്രയോഗിക്കണം.",
+                        "assistant-response-4": "വിള പരിക്രമണം മണ്ണിന്റെ പോഷകങ്ങൾ നശിക്കുന്നത് തടയാനും ഒരു വിളയെ മാത്രം ആശ്രയിക്കുന്ന കീടങ്ങളുടെയും രോഗങ്ങളുടെയും വർദ്ധനവ് കുറയ്ക്കാനും സഹായിക്കുന്നു."
+                    },
+                    profile: {
+                        "profile-header": "My Profile",
+                        "profile-name": "Rajesh Kumar",
+                        "profile-email": "rajesh.k@krishimithram.com",
+                        "account-details": "Account Details",
+                        "location-label": "Location",
+                        "location-value": "Kochi, Kerala",
+                        "phone-label": "Phone",
+                        "phone-value": "+91 98765 43210",
+                        "member-since-label": "Member Since",
+                        "member-since-value": "Jan 2024",
+                        "language-settings": "Language Settings",
+                        "lang-en": "English",
+                        "lang-ml": "Malayalam",
+                        "logout-btn": "Logout"
+                    }
+                }
+            };
+
+            const screens = {
+                home: `
+                    <div class="space-y-6">
+                        <!-- Top Header & Weather Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex items-center space-x-2 text-green-600 mb-2">
+                                <i class="fas fa-leaf text-2xl"></i>
+                                <h1 class="text-xl font-bold" data-i18n="home.header-title">Krishimithram</h1>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-800" data-i18n="home.welcome-message">Namaskaram, Rajesh!</h2>
+                            <p class="text-sm text-gray-500 mb-6" data-i18n="home.tagline">Your AI-powered farming companion</p>
+                            
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="home.weather-title">Today's Weather</h3>
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <i class="fas fa-cloud-sun text-4xl text-gray-500"></i>
+                                    <div>
+                                        <p class="text-lg font-bold text-gray-800" data-i18n="home.temp">28°C</p>
+                                        <p class="text-sm text-gray-600" data-i18n="home.condition">Partly Cloudy</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500" data-i18n="home.location">Kochi, Kerala</p>
+                                    <p class="text-green-600 font-medium mt-1 text-sm" data-i18n="home.weather-tip">Good for irrigation</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4 text-gray-600 text-sm">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-tint text-xl"></i>
+                                    <p class="mt-1 font-bold" data-i18n="home.humidity">75%</p>
+                                    <p data-i18n="home.humidity-label">Humidity</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-wind text-xl"></i>
+                                    <p class="mt-1 font-bold" data-i18n="home.wind-speed">12 km/h</p>
+                                    <p data-i18n="home.wind-speed-label">Wind Speed</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Section -->
+                        <div class="p-4 bg-white rounded-xl shadow-md">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4" data-i18n="home.quick-actions-title">Quick Actions</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <a href="#crop-doctor" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-qrcode text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.scan-plant">Scan Plant</span>
+                                </a>
+                                <a href="#weather-advisor" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-cloud-sun text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.weather-advisor">Weather Advisor</span>
+                                </a>
+                                <a href="#analytics" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-chart-line text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.market-prices">Market Prices</span>
+                                </a>
+                                <a href="#analytics" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-seedling text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.fertilizer-guide">Fertilizer Guide</span>
+                                </a>
+                                <a href="#education" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-video text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.educational-videos">Educational Videos</span>
+                                </a>
+                                <a href="#chat" class="quick-action-btn flex flex-col items-center justify-center p-4 bg-green-100 rounded-xl hover:bg-green-200 transition-colors">
+                                    <i class="fas fa-question-circle text-3xl text-green-600"></i>
+                                    <span class="mt-2 text-sm text-center font-medium text-green-800" data-i18n="home.action.q-a-assistant">Q&A Assistant</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'crop-doctor': `
+                    <div class="space-y-6 text-center">
+                        <h2 class="text-xl font-bold text-gray-800" data-i18n="crop-doctor.title">AI Crop Doctor</h2>
+                        
+                        <!-- Initial State -->
+                        <div id="initial-state" class="space-y-4">
+                            <p class="text-lg font-semibold text-gray-800" data-i18n="crop-doctor.intro-title">Take a photo of your plant to get an instant AI diagnosis</p>
+                            <ul class="text-left text-sm text-gray-600 list-disc list-inside space-y-2">
+                                <li data-i18n="crop-doctor.intro-text1">AI detects diseases and pests instantly</li>
+                                <li data-i18n="crop-doctor.intro-text2">Get natural and chemical remedies</li>
+                                <li data-i18n="crop-doctor.intro-text3">Instant help with no waiting for an expert</li>
+                            </ul>
+                            <div class="p-6 bg-white rounded-xl shadow-md flex flex-col items-center justify-center space-y-4">
+                                <i class="fas fa-camera text-6xl text-gray-400"></i>
+                                <input type="file" id="photo-input" accept="image/*" class="hidden">
+                                <button id="take-picture-btn" class="gradient-bg text-white font-bold py-3 px-6 rounded-full w-full flex items-center justify-center space-x-2" data-i18n="crop-doctor.take-picture-btn">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Take a Picture</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Photo Selected State -->
+                        <div id="photo-selected-state" class="hidden space-y-4">
+                             <div class="w-full h-64 bg-gray-200 rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+                                <img id="photo-preview" src="" alt="Photo Preview" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex space-x-4">
+                                <button id="retake-photo-btn" class="gradient-btn text-white font-bold py-3 px-6 rounded-full w-1/2" data-i18n="crop-doctor.retake-btn">Retake Photo</button>
+                                <button id="diagnose-btn" class="gradient-bg text-white font-bold py-3 px-6 rounded-full w-1/2" data-i18n="crop-doctor.diagnose-btn">Diagnose</button>
+                            </div>
+                        </div>
+
+                        <!-- Diagnosis Result -->
+                        <div id="diagnosis-result-state" class="hidden p-6 bg-white rounded-xl shadow-md space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="crop-doctor.result-heading">Diagnosis Result</h3>
+                            <p class="text-sm" data-i18n="crop-doctor.disease-title">Disease: <span class='text-red-500 font-bold'>Tomato Leaf Blight</span></p>
+                            <h4 class="text-md font-semibold text-gray-700" data-i18n="crop-doctor.remedies-heading">Suggested Remedies</h4>
+                            <div class="space-y-2 text-left">
+                                <h5 class="text-md font-semibold text-gray-700" data-i18n="crop-doctor.organic-heading">Organic Remedies</h5>
+                                <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li data-i18n="crop-doctor.organic-remedy1">Mix baking soda (1 tbsp) with vegetable oil (3 tsp) and water (1 gallon). Spray on leaves.</li>
+                                    <li data-i18n="crop-doctor.organic-remedy2">Use Neem oil spray (2 tsp per liter of water) on affected areas.</li>
+                                </ul>
+                                <h5 class="text-md font-semibold text-gray-700 mt-4" data-i18n="crop-doctor.chemical-heading">Chemical Remedies</h5>
+                                <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li data-i18n="crop-doctor.chemical-remedy1">Apply a fungicide containing copper hydroxide or chlorothalonil.</li>
+                                    <li data-i18n="crop-doctor.chemical-remedy2">Consult a local agronomist for specific chemical recommendations.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'weather-advisor': `
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-gray-800 text-center" data-i18n="weather-advisor.title">Weather & Watering Advisor</h2>
+
+                        <!-- Live Updates Section -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4 text-center">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="weather-advisor.live-updates-title">Live updates for Kochi, Kerala</h3>
+                            <div class="flex items-center justify-center space-x-4">
+                                <i class="fas fa-cloud-sun text-6xl text-gray-500"></i>
+                                <div>
+                                    <p class="text-5xl font-bold text-gray-800">28°C</p>
+                                    <p class="text-lg text-gray-600" data-i18n="weather-advisor.condition-good">Partly Cloudy</p>
+                                    <p class="text-green-600 font-medium mt-1" data-i18n="weather-advisor.condition-good">Good for cultivation today</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4 mt-4 text-gray-600 text-sm">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-tint text-xl"></i>
+                                    <p class="mt-1 font-bold">75%</p>
+                                    <p data-i18n="weather-advisor.humidity">Humidity</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-wind text-xl"></i>
+                                    <p class="mt-1 font-bold">12 km/h</p>
+                                    <p data-i18n="weather-advisor.wind-speed">Wind Speed</p>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-tachometer-alt text-xl"></i>
+                                    <p class="mt-1 font-bold">1012 hPa</p>
+                                    <p data-i18n="weather-advisor.pressure">Pressure</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7-Day Forecast -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="weather-advisor.forecast-title">Forecast for the next 7 days</h3>
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead>
+                                    <tr class="font-medium text-gray-700 border-b">
+                                        <th class="py-2" data-i18n="weather-advisor.day-col">Day</th>
+                                        <th class="py-2" data-i18n="weather-advisor.date-col">Date</th>
+                                        <th class="py-2" data-i18n="weather-advisor.temp-col">Temp</th>
+                                        <th class="py-2" data-i18n="weather-advisor.condition-col">Condition</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2">Monday</td>
+                                        <td class="py-2">Sep 16</td>
+                                        <td class="py-2">29°C</td>
+                                        <td class="py-2 flex items-center space-x-2"><i class="fas fa-cloud-sun text-gray-500"></i><span>Partly Cloudy</span></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2">Tuesday</td>
+                                        <td class="py-2">Sep 17</td>
+                                        <td class="py-2">27°C</td>
+                                        <td class="py-2 flex items-center space-x-2"><i class="fas fa-cloud-rain text-blue-500"></i><span>Rainy</span></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2">Wednesday</td>
+                                        <td class="py-2">Sep 18</td>
+                                        <td class="py-2">28°C</td>
+                                        <td class="py-2 flex items-center space-x-2"><i class="fas fa-sun text-yellow-500"></i><span>Sunny</span></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2">Thursday</td>
+                                        <td class="py-2">Sep 19</td>
+                                        <td class="py-2">26°C</td>
+                                        <td class="py-2 flex items-center space-x-2"><i class="fas fa-cloud-showers-heavy text-blue-500"></i><span>Heavy Rain</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Weather Alerts -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="weather-advisor.weather-alerts-title">Weather Alerts</h3>
+                            <div class="bg-yellow-100 border border-yellow-300 rounded-xl p-4 flex items-center space-x-4">
+                                <i class="fas fa-exclamation-triangle text-3xl text-yellow-500"></i>
+                                <div class="text-sm text-yellow-800">
+                                    <h4 class="font-bold" data-i18n="weather-advisor.heavy-rain-warning-title">Heavy Rainfall Warning</h4>
+                                    <p class="mt-1" data-i18n="weather-advisor.heavy-rain-warning-text">Heavy rainfall expected in coastal areas over the next 24 hours. Farmers are advised to take necessary precautions.</p>
+                                </div>
+                            </div>
+                            <div class="bg-orange-100 border border-orange-300 rounded-xl p-4 flex items-center space-x-4">
+                                <i class="fas fa-wind text-3xl text-orange-500"></i>
+                                <div class="text-sm text-orange-800">
+                                    <h4 class="font-bold" data-i18n="weather-advisor.strong-wind-advisory-title">Strong Wind Advisory</h4>
+                                    <p class="mt-1" data-i18n="weather-advisor.strong-wind-advisory-text">Strong winds with gusts up to 50 km/h are expected. Secure crops and lightweight structures.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Watering Guide -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="weather-advisor.watering-guide-title">Watering Guide</h3>
+                            <p class="text-sm text-gray-600" data-i18n="weather-advisor.get-advice-text">Get personalized watering advice for your crops based on the weather.</p>
+                            <div class="border-l-4 border-green-500 pl-4 py-2">
+                                <h4 class="text-base font-bold text-green-700" data-i18n="weather-advisor.watering-advice-title">Watering Advice</h4>
+                                <p class="mt-1 text-sm text-gray-600" data-i18n="weather-advisor.watering-advice-text">Today's temperatures are high. **Increase watering frequency** and consider irrigating in the evening to reduce evaporation. Check soil moisture before watering.</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                analytics: `
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-gray-800 text-center" data-i18n="analytics.title">Analytics Dashboard</h2>
+
+                        <!-- Market Prices Section -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="analytics.market-title">Market Price & Sales Advisor</h3>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="crop-select" class="block text-sm font-medium text-gray-700" data-i18n="analytics.crop-col">Crop</label>
+                                    <select id="crop-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 focus:ring-opacity-50">
+                                        <option value="" disabled selected data-i18n="analytics.select-crop-placeholder">Select a crop</option>
+                                    </select>
+                                </div>
+
+                                <div id="price-display-container" class="hidden">
+                                    <div class="p-4 bg-gray-100 rounded-lg">
+                                        <h4 class="font-medium text-gray-700" data-i18n="analytics.current-price-title">Current Price</h4>
+                                        <p id="current-price" class="text-2xl font-bold text-green-600 mt-1"></p>
+                                    </div>
+                                    <button id="contact-buyers-btn" class="w-full mt-4 gradient-bg text-white font-bold py-3 px-6 rounded-full" data-i18n="analytics.contact-buyers-btn">Contact Buyers</button>
+                                </div>
+
+                                <div id="buyers-list-container" class="hidden mt-6">
+                                    <h4 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="analytics.buyers-title">Buyers & Wholesalers</h4>
+                                    <div id="buyers-list" class="space-y-3">
+                                        <!-- Buyer list will be dynamically generated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fertilizer Section -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="analytics.fertilizer-title">Fertilizer & Soil Guide</h3>
+                            <p class="text-sm text-gray-600" data-i18n="analytics.get-customized-plan">Get a customized plan for your crops and soil.</p>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="fertilizer-crop-select" class="block text-sm font-medium text-gray-700" data-i18n="analytics.crop-name-label">Crop Name</label>
+                                    <select id="fertilizer-crop-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 focus:ring-opacity-50">
+                                        <option value="" disabled selected data-i18n="analytics.select-crop-placeholder">Select a crop</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="land-size" class="block text-sm font-medium text-gray-700" data-i18n="analytics.land-size-label">Land Size (in acres)</label>
+                                    <input type="number" id="land-size" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 focus:ring-opacity-50" placeholder="1.0">
+                                </div>
+                                
+                                <div>
+                                    <label for="soil-select" class="block text-sm font-medium text-gray-700" data-i18n="analytics.soil-type-label">Soil Type</label>
+                                    <select id="soil-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 focus:ring-opacity-50">
+                                        <option value="" disabled selected data-i18n="analytics.select-soil-type-placeholder">Select soil type</option>
+                                        <option value="Sandy" data-i18n="analytics.sandy-soil">Sandy Soil</option>
+                                        <option value="Clay" data-i18n="analytics.clay-soil">Clay Soil</option>
+                                        <option value="Loamy" data-i18n="analytics.loamy-soil">Loamy Soil</option>
+                                        <option value="Red" data-i18n="analytics.red-soil">Red Soil</option>
+                                    </select>
+                                </div>
+
+                                <button id="get-advice-btn" class="w-full mt-4 gradient-bg text-white font-bold py-3 px-6 rounded-full" data-i18n="analytics.get-advice-btn">Get Advice</button>
+                            </div>
+
+                            <div id="fertilizer-result-container" class="hidden mt-6 space-y-4">
+                                <h4 class="text-lg font-semibold text-gray-800" id="fertilizer-result-heading" data-i18n="analytics.result-heading">Fertilizer Recommendation:</h4>
+                                <p id="fertilizer-result-text" class="text-sm text-gray-600">Based on your inputs, a general recommendation for a plot is to use NPK fertilizer.</p>
+                                
+                                <h4 class="text-md font-semibold text-gray-700" data-i18n="analytics.tips-heading">Soil Health Tips:</h4>
+                                <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
+                                    <li data-i18n="analytics.tip1">Add organic compost to improve soil structure.</li>
+                                    <li data-i18n="analytics.tip2">Rotate crops to prevent nutrient depletion.</li>
+                                    <li data-i18n="analytics.tip3">Perform soil tests annually.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                education: `
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-gray-800 text-center" data-i18n="education.title">Educational Videos</h2>
+                        <p class="text-sm text-gray-600 text-center" data-i18n="education.intro">Learn modern farming techniques, pest control, and soil management with our educational video series.</p>
+                        
+                        <div class="space-y-4">
+                            <!-- Video Card 1 -->
+                            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <img src="https://placehold.co/400x200/10B981/ffffff?text=Video+Thumbnail+1" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                                <div class="p-4 space-y-2">
+                                    <h3 class="text-lg font-semibold text-gray-800" data-i18n="education.video1-title">Organic Pest Control</h3>
+                                    <p class="text-sm text-gray-600" data-i18n="education.video1-desc">Learn how to make and use natural pesticides to protect your crops.</p>
+                                </div>
+                            </a>
+
+                            <!-- Video Card 2 -->
+                            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <img src="https://placehold.co/400x200/10B981/ffffff?text=Video+Thumbnail+2" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                                <div class="p-4 space-y-2">
+                                    <h3 class="text-lg font-semibold text-gray-800" data-i18n="education.video2-title">Soil Testing Basics</h3>
+                                    <p class="text-sm text-gray-600" data-i18n="education.video2-desc">A simple guide to testing your soil's pH and nutrient levels at home.</p>
+                                </div>
+                            </a>
+
+                            <!-- Video Card 3 -->
+                            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <img src="https://placehold.co/400x200/10B981/ffffff?text=Video+Thumbnail+3" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                                <div class="p-4 space-y-2">
+                                    <h3 class="text-lg font-semibold text-gray-800" data-i18n="education.video3-title">Drip Irrigation Setup</h3>
+                                    <p class="text-sm text-gray-600" data-i18n="education.video3-desc">Step-by-step instructions on setting up an efficient drip irrigation system.</p>
+                                </div>
+                            </a>
+                            
+                            <!-- Video Card 4 -->
+                            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <img src="https://placehold.co/400x200/10B981/ffffff?text=Video+Thumbnail+4" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                                <div class="p-4 space-y-2">
+                                    <h3 class="text-lg font-semibold text-gray-800" data-i18n="education.video4-title">Composting for Beginners</h3>
+                                    <p class="text-sm text-gray-600" data-i18n="education.video4-desc">How to create your own nutrient-rich compost from kitchen and garden waste.</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                `,
+                chat: `
+                    <div class="flex flex-col h-[70vh]">
+                        <h2 class="text-xl font-bold text-gray-800 text-center mb-4" data-i18n="chat.chat-header">Farmer Q&A Assistant</h2>
+                        <div class="flex-grow p-4 bg-gray-50 rounded-lg shadow-inner overflow-y-auto space-y-4 flex flex-col" id="chat-messages">
+                            <!-- Initial assistant message -->
+                            <div class="chat-message assistant p-3 rounded-lg max-w-[85%] shadow-md">
+                                <p data-i18n="chat.assistant-response-1">Hello! How can I assist you with your farming needs today?</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center">
+                            <button id="voice-input-btn" class="gradient-btn text-white rounded-full w-10 h-10 flex items-center justify-center">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <input type="text" id="chat-input" class="flex-grow rounded-full p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 ml-2" data-i18n="chat.chat-placeholder" placeholder="Type your question...">
+                            <button id="chat-send" class="gradient-bg text-white rounded-full w-10 h-10 flex items-center justify-center ml-2">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                `,
+                profile: `
+                    <div class="space-y-6 text-center">
+                        <h2 class="text-xl font-bold text-gray-800" data-i18n="profile.profile-header">My Profile</h2>
+                        
+                        <!-- Profile Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
+                            <i class="fas fa-user-circle text-6xl text-gray-400"></i>
+                            <h3 class="text-2xl font-bold text-gray-800" data-i18n="profile.profile-name">Rajesh Kumar</h3>
+                            <p class="text-sm text-gray-500" data-i18n="profile.profile-email">rajesh.k@krishimithram.com</p>
+                        </div>
+
+                        <!-- Account Details -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4 text-left">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2" data-i18n="profile.account-details">Account Details</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p class="text-gray-500" data-i18n="profile.location-label">Location:</p>
+                                    <p class="font-medium text-gray-800" data-i18n="profile.location-value">Kochi, Kerala</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500" data-i18n="profile.phone-label">Phone:</p>
+                                    <p class="font-medium text-gray-800" data-i18n="profile.phone-value">+91 98765 43210</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-gray-500" data-i18n="profile.member-since-label">Member Since:</p>
+                                    <p class="font-medium text-gray-800" data-i18n="profile.member-since-value">Jan 2024</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Language Settings -->
+                        <div class="bg-white rounded-xl shadow-md p-6 space-y-4 text-left">
+                            <h3 class="text-lg font-semibold text-gray-800" data-i18n="profile.language-settings">Language Settings</h3>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button id="lang-ml" class="lang-switch-btn text-gray-700 font-medium hover:text-green-600 transition-colors">
+                                    <span data-i18n="profile.lang-ml">മലയാളം</span>
+                                </button>
+                                <button id="lang-en" class="lang-switch-btn active text-gray-700 font-medium hover:text-green-600 transition-colors">
+                                    <span data-i18n="profile.lang-en">English</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Logout Button -->
+                        <button class="w-full gradient-btn text-white font-bold py-3 px-6 rounded-full mt-4" data-i18n="profile.logout-btn">
+                            Logout
+                        </button>
+                    </div>
+                `
+            };
+            
+            const marketData = {
+                'Banana': {
+                    display: 'Banana / Plantain (നേന്ത്ര, റോബസ്റ്റ, പൂവൻ, റെഡ് ബനാന)',
+                    price: '₹22/kg',
+                    buyers: [
+                        { name: 'Wayanad Banana Mart', location: 'Wayanad', phone: '9946011223' },
+                        { name: 'Trivandrum Traders', location: 'Trivandrum', phone: '9946033445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Clay": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Loamy": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Red": "9 kg of Nitrogen and 5 kg of Phosphorus per acre."
+                    }
+                },
+                'Jackfruit': {
+                    display: 'Jackfruit (ചക്ക)',
+                    price: '₹35/kg',
+                    buyers: [
+                        { name: 'Palakkad Jackfruit Co.', location: 'Palakkad', phone: '9446012345' },
+                        { name: 'Kochi Wholesalers', location: 'Kochi', phone: '9446054321' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "15 kg of Nitrogen and 7 kg of Phosphorus per acre.",
+                        "Clay": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Loamy": "18 kg of Nitrogen and 9 kg of Phosphorus per acre.",
+                        "Red": "14 kg of Nitrogen and 8 kg of Phosphorus per acre."
+                    }
+                },
+                'Mango': {
+                    display: 'Mango (മാങ്ങ – മൂവാണ്ടൻ, ചക്കരക്കുട്ടി, etc.)',
+                    price: '₹80/kg',
+                    buyers: [
+                        { name: 'Malabar Fruits', location: 'Kannur', phone: '9447012345' },
+                        { name: 'Palakkad Traders', location: 'Palakkad', phone: '9447054321' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "20 kg of Nitrogen and 10 kg of Phosphorus per acre.",
+                        "Clay": "16 kg of Nitrogen and 8 kg of Phosphorus per acre.",
+                        "Loamy": "25 kg of Nitrogen and 12 kg of Phosphorus per acre.",
+                        "Red": "18 kg of Nitrogen and 9 kg of Phosphorus per acre."
+                    }
+                },
+                'Pineapple': {
+                    display: 'Pineapple (വാഴക്കുളം വെറൈറ്റി)',
+                    price: '₹40/kg',
+                    buyers: [
+                        { name: 'Vazhakulam Pineapple Dealers', location: 'Muvattupuzha', phone: '9895011223' },
+                        { name: 'Alappuzha Fruits Mart', location: 'Alappuzha', phone: '9895033445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Clay": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Loamy": "15 kg of Nitrogen and 8 kg of Phosphorus per acre.",
+                        "Red": "11 kg of Nitrogen and 6 kg of Phosphorus per acre."
+                    }
+                },
+                'Papaya': {
+                    display: 'Papaya (ഓമക്ക / കപ്ലങ്ങ)',
+                    price: '₹25/kg',
+                    buyers: [
+                        { name: 'Kottayam Fruits', location: 'Kottayam', phone: '9746112233' },
+                        { name: 'Idukki Fresh', location: 'Idukki', phone: '9746144556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Clay": "6 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Loamy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Red": "7 kg of Nitrogen and 4 kg of Phosphorus per acre."
+                    }
+                },
+                'Guava': {
+                    display: 'Guava (പേരക്ക)',
+                    price: '₹50/kg',
+                    buyers: [
+                        { name: 'Pathanamthitta Farms', location: 'Pathanamthitta', phone: '9633011223' },
+                        { name: 'Kollam Fruit Market', location: 'Kollam', phone: '9633033445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Clay": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Loamy": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Red": "9 kg of Nitrogen and 5 kg of Phosphorus per acre."
+                    }
+                },
+                'Coconut': {
+                    display: 'Coconut (തേങ്ങ)',
+                    price: '₹55/kg',
+                    buyers: [
+                        { name: 'Kozhikode Coconut Buyers', location: 'Kozhikode', phone: '9745112233' },
+                        { name: 'Palakkad Co-op', location: 'Palakkad', phone: '9745144556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "25 kg of Nitrogen, 15 kg of Phosphorus, and 20 kg of Potash per acre.",
+                        "Clay": "20 kg of Nitrogen, 12 kg of Phosphorus, and 18 kg of Potash per acre.",
+                        "Loamy": "30 kg of Nitrogen, 18 kg of Phosphorus, and 25 kg of Potash per acre.",
+                        "Red": "22 kg of Nitrogen, 14 kg of Phosphorus, and 20 kg of Potash per acre."
+                    }
+                },
+                'Tapioca': {
+                    display: 'Tapioca (കപ്പ / മരച്ചീനി)',
+                    price: '₹30/kg',
+                    buyers: [
+                        { name: 'Idukki Mandi', location: 'Idukki', phone: '8943011223' },
+                        { name: 'Kollam Distributors', location: 'Kollam', phone: '8943033445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Clay": "6 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Loamy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Red": "7 kg of Nitrogen and 4 kg of Phosphorus per acre."
+                    }
+                },
+                'Elephant Foot Yam': {
+                    display: 'Elephant Foot Yam (ചേന)',
+                    price: '₹45/kg',
+                    buyers: [
+                        { name: 'Wayanad Agro Products', location: 'Wayanad', phone: '9895112233' },
+                        { name: 'Malappuram Wholesale', location: 'Malappuram', phone: '9895144556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Clay": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Loamy": "15 kg of Nitrogen and 8 kg of Phosphorus per acre.",
+                        "Red": "11 kg of Nitrogen and 6 kg of Phosphorus per acre."
+                    }
+                },
+                'Ash Gourd': {
+                    display: 'Ash Gourd (കുമ്പളങ്ങ)',
+                    price: '₹20/kg',
+                    buyers: [
+                        { name: 'Thrissur Market', location: 'Thrissur', phone: '9745212345' },
+                        { name: 'Kochi Traders', location: 'Kochi', phone: '9745254321' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "7 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Clay": "5 kg of Nitrogen and 2 kg of Phosphorus per acre.",
+                        "Loamy": "9 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Red": "6 kg of Nitrogen and 3 kg of Phosphorus per acre."
+                    }
+                },
+                'Snake Gourd': {
+                    display: 'Snake Gourd (പടവലങ്ങ)',
+                    price: '₹30/kg',
+                    buyers: [
+                        { name: 'Palakkad Vegetables', location: 'Palakkad', phone: '9446112233' },
+                        { name: 'Kozhikode Mandi', location: 'Kozhikode', phone: '9446144556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Clay": "6 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Loamy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Red": "7 kg of Nitrogen and 4 kg of Phosphorus per acre."
+                    }
+                },
+                'Bitter Gourd': {
+                    display: 'Bitter Gourd (പാവക്ക)',
+                    price: '₹40/kg',
+                    buyers: [
+                        { name: 'Alappuzha Wholesale Market', location: 'Alappuzha', phone: '9946211223' },
+                        { name: 'Kottayam Farm Fresh', location: 'Kottayam', phone: '9946233445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "9 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Clay": "7 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Loamy": "11 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Red": "8 kg of Nitrogen and 5 kg of Phosphorus per acre."
+                    }
+                },
+                'Cucumber': {
+                    display: 'Cucumber (വെള്ളരിക്ക)',
+                    price: '₹18/kg',
+                    buyers: [
+                        { name: 'Trivandrum Distributors', location: 'Trivandrum', phone: '8943111223' },
+                        { name: 'Kochi Vegetable Mart', location: 'Kochi', phone: '8943133445' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "6 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Clay": "4 kg of Nitrogen and 2 kg of Phosphorus per acre.",
+                        "Loamy": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Red": "5 kg of Nitrogen and 3 kg of Phosphorus per acre."
+                    }
+                },
+                'Drumstick': {
+                    display: 'Drumstick (മുരിങ്ങക്ക)',
+                    price: '₹60/kg',
+                    buyers: [
+                        { name: 'Thrissur Vendors', location: 'Thrissur', phone: '9447112233' },
+                        { name: 'Palakkad Drumstick Hub', location: 'Palakkad', phone: '9447144556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "10 kg of Nitrogen and 5 kg of Phosphorus per acre.",
+                        "Clay": "8 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Loamy": "12 kg of Nitrogen and 6 kg of Phosphorus per acre.",
+                        "Red": "9 kg of Nitrogen and 5 kg of Phosphorus per acre."
+                    }
+                },
+                'Okra': {
+                    display: 'Okra / Lady’s Finger (വെണ്ടക്ക)',
+                    price: '₹35/kg',
+                    buyers: [
+                        { name: 'Kollam Suppliers', location: 'Kollam', phone: '9745311223' },
+                        { name: 'Ernakulam Vegetable Market', location: 'Ernakulam', phone: '9745344556' }
+                    ],
+                    fertilizer: {
+                        "Sandy": "7 kg of Nitrogen and 3 kg of Phosphorus per acre.",
+                        "Clay": "5 kg of Nitrogen and 2 kg of Phosphorus per acre.",
+                        "Loamy": "9 kg of Nitrogen and 4 kg of Phosphorus per acre.",
+                        "Red": "6 kg of Nitrogen and 3 kg of Phosphorus per acre."
+                    }
+                }
+            };
+            
+            const updateLanguage = (screenName) => {
+                const screenTranslations = languages[currentLang];
+                document.getElementById('app-title').innerHTML = screenTranslations['app-title'];
+
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const textKey = element.getAttribute('data-i18n');
+                    const keys = textKey.split('.');
+                    let translation = screenTranslations;
+                    for (const key of keys) {
+                        if (translation && translation.hasOwnProperty(key)) {
+                            translation = translation[key];
+                        } else {
+                            translation = null;
+                            break;
+                        }
+                    }
+                    if (translation) {
+                        if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                            element.setAttribute('placeholder', translation);
+                        } else {
+                            element.innerHTML = translation;
+                        }
+                    }
+                });
+            };
+
+            const renderScreen = (screenName) => {
+                const screenContent = screens[screenName] || screens.home;
+                screenContainer.innerHTML = screenContent;
+                updateLanguage(screenName);
+
+                if (screenName === 'crop-doctor') {
+                    setupCropDoctorScreen();
+                } else if (screenName === 'analytics') {
+                    setupAnalyticsScreen();
+                } else if (screenName === 'chat') {
+                    setupChatScreen();
+                } else if (screenName === 'profile') {
+                     // Set up language switch buttons for the new profile screen
+                    const langEnBtn = document.getElementById('lang-en');
+                    const langMlBtn = document.getElementById('lang-ml');
+
+                    // Function to update button state
+                    const updateLangButtons = () => {
+                        langEnBtn.classList.remove('active');
+                        langMlBtn.classList.remove('active');
+                        if (currentLang === 'en') {
+                            langEnBtn.classList.add('active');
+                        } else {
+                            langMlBtn.classList.add('active');
+                        }
+                    };
+                    
+                    langEnBtn.addEventListener('click', () => {
+                        currentLang = 'en';
+                        updateLangButtons();
+                        updateLanguage('profile');
+                    });
+
+                    langMlBtn.addEventListener('click', () => {
+                        currentLang = 'ml';
+                        updateLangButtons();
+                        updateLanguage('profile');
+                    });
+                    
+                    updateLangButtons(); // Set initial state
+                }
+            };
+            
+            const setupCropDoctorScreen = () => {
+                const initialState = document.getElementById('initial-state');
+                const photoSelectedState = document.getElementById('photo-selected-state');
+                const diagnosisResultState = document.getElementById('diagnosis-result-state');
+                const takePictureBtn = document.getElementById('take-picture-btn');
+                const photoInput = document.getElementById('photo-input');
+                const photoPreview = document.getElementById('photo-preview');
+                const retakeBtn = document.getElementById('retake-photo-btn');
+                const diagnoseBtn = document.getElementById('diagnose-btn');
+
+                const resetState = () => {
+                    initialState.classList.remove('hidden');
+                    photoSelectedState.classList.add('hidden');
+                    diagnosisResultState.classList.add('hidden');
+                    photoInput.value = '';
+                };
+
+                takePictureBtn.addEventListener('click', () => {
+                    photoInput.click();
+                });
+
+                photoInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            photoPreview.src = e.target.result;
+                            initialState.classList.add('hidden');
+                            photoSelectedState.classList.remove('hidden');
+                            diagnosisResultState.classList.add('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+
+                retakeBtn.addEventListener('click', () => {
+                    resetState();
+                });
+
+                diagnoseBtn.addEventListener('click', () => {
+                    photoSelectedState.classList.add('hidden');
+                    diagnosisResultState.classList.remove('hidden');
+                });
+            };
+
+            const setupAnalyticsScreen = () => {
+                // Setup Market Price & Sales Advisor section
+                const setupMarketPriceSection = () => {
+                    const cropSelect = document.getElementById('crop-select');
+                    const priceDisplayContainer = document.getElementById('price-display-container');
+                    const currentPriceEl = document.getElementById('current-price');
+                    const contactBuyersBtn = document.getElementById('contact-buyers-btn');
+                    const buyersListContainer = document.getElementById('buyers-list-container');
+                    const buyersListEl = document.getElementById('buyers-list');
+
+                    // Clear previous options
+                    cropSelect.innerHTML = `<option value="" disabled selected data-i18n="analytics.select-crop-placeholder">${languages[currentLang].analytics["select-crop-placeholder"]}</option>`;
+
+                    // Group the crops and populate the dropdown
+                    const fruits = [
+                        'Banana', 'Jackfruit', 'Mango', 'Pineapple', 'Papaya', 'Guava', 'Coconut'
+                    ];
+                    const vegetables = [
+                        'Tapioca', 'Elephant Foot Yam', 'Ash Gourd', 'Snake Gourd', 'Bitter Gourd', 'Cucumber', 'Drumstick', 'Okra'
+                    ];
+                    
+                    const fruitGroup = document.createElement('optgroup');
+                    fruitGroup.label = languages[currentLang].analytics['all-fruits'];
+                    fruits.forEach(crop => {
+                        const option = document.createElement('option');
+                        option.value = crop;
+                        option.textContent = marketData[crop].display;
+                        fruitGroup.appendChild(option);
+                    });
+                    cropSelect.appendChild(fruitGroup);
+
+                    const vegetableGroup = document.createElement('optgroup');
+                    vegetableGroup.label = languages[currentLang].analytics['all-vegetables'];
+                    vegetables.forEach(crop => {
+                        const option = document.createElement('option');
+                        option.value = crop;
+                        option.textContent = marketData[crop].display;
+                        vegetableGroup.appendChild(option);
+                    });
+                    cropSelect.appendChild(vegetableGroup);
+
+                    // Handle crop selection
+                    cropSelect.addEventListener('change', (e) => {
+                        const selectedCrop = e.target.value;
+                        const data = marketData[selectedCrop];
+                        if (data) {
+                            priceDisplayContainer.classList.remove('hidden');
+                            currentPriceEl.textContent = data.price;
+                            buyersListContainer.classList.add('hidden');
+                        } else {
+                            priceDisplayContainer.classList.add('hidden');
+                            buyersListContainer.classList.add('hidden');
+                        }
+                    });
+
+                    // Handle "Contact Buyers" button click
+                    contactBuyersBtn.addEventListener('click', () => {
+                        const selectedCrop = cropSelect.value;
+                        const data = marketData[selectedCrop];
+                        if (data && data.buyers.length > 0) {
+                            let buyersHtml = '';
+                            data.buyers.forEach(buyer => {
+                                buyersHtml += `
+                                    <div class="bg-gray-50 rounded-lg p-4 flex items-center justify-between shadow-sm">
+                                        <div>
+                                            <p class="font-medium text-gray-800">${buyer.name}</p>
+                                            <p class="text-sm text-gray-500">${buyer.location}</p>
+                                            <p class="text-sm text-gray-500">${buyer.phone}</p>
+                                        </div>
+                                        <a href="tel:${buyer.phone}" class="gradient-bg text-white px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
+                                            <i class="fas fa-phone"></i>
+                                            <span data-i18n="analytics.call-btn">Call</span>
+                                        </a>
+                                    </div>
+                                `;
+                            });
+                            buyersListEl.innerHTML = buyersHtml;
+                            buyersListContainer.classList.remove('hidden');
+                            updateLanguage('analytics');
+                        } else {
+                            buyersListContainer.innerHTML = `<p class="text-center text-sm text-gray-500">No buyers found for this crop.</p>`;
+                            buyersListContainer.classList.remove('hidden');
+                        }
+                    });
+                };
+
+                // Setup Fertilizer & Soil Guide section
+                const setupFertilizerSection = () => {
+                    const fertilizerCropSelect = document.getElementById('fertilizer-crop-select');
+                    const landSizeInput = document.getElementById('land-size');
+                    const soilSelect = document.getElementById('soil-select');
+                    const getAdviceBtn = document.getElementById('get-advice-btn');
+                    const fertilizerResultContainer = document.getElementById('fertilizer-result-container');
+                    const fertilizerResultText = document.getElementById('fertilizer-result-text');
+
+                    // Populate the crop dropdown
+                    const allCrops = [...Object.keys(marketData)];
+                    allCrops.forEach(crop => {
+                        const option = document.createElement('option');
+                        option.value = crop;
+                        option.textContent = marketData[crop].display;
+                        fertilizerCropSelect.appendChild(option);
+                    });
+                    
+                    // Handle "Get Advice" button click
+                    getAdviceBtn.addEventListener('click', () => {
+                        const selectedCrop = fertilizerCropSelect.value;
+                        const landSize = parseFloat(landSizeInput.value) || 1;
+                        const selectedSoil = soilSelect.value;
+                        let recommendation = 'Please select a crop and soil type.';
+
+                        if (selectedCrop && selectedSoil) {
+                            const cropData = marketData[selectedCrop];
+                            if (cropData && cropData.fertilizer && cropData.fertilizer[selectedSoil]) {
+                                const baseRecommendation = cropData.fertilizer[selectedSoil];
+                                recommendation = `For ${landSize} acre(s) of ${selectedSoil.toLowerCase()} soil, the recommended dosage is: ${baseRecommendation}`;
+                            } else {
+                                recommendation = `No specific fertilizer recommendation found for ${selectedCrop} and ${selectedSoil} soil.`;
+                            }
+                        }
+
+                        fertilizerResultText.textContent = recommendation;
+                        fertilizerResultContainer.classList.remove('hidden');
+                    });
+                };
+                
+                setupMarketPriceSection();
+                setupFertilizerSection();
+            };
+
+            const setupChatScreen = () => {
+                const chatMessages = document.getElementById('chat-messages');
+                const chatInput = document.getElementById('chat-input');
+                const chatSendBtn = document.getElementById('chat-send');
+                const voiceInputBtn = document.getElementById('voice-input-btn');
+                const voicePrompt = languages[currentLang].chat['voice-prompt'];
+                const chatPlaceholder = languages[currentLang].chat['chat-placeholder'];
+                let isListening = false;
+                
+                // Simulated assistant responses
+                const assistantResponses = [
+                    languages[currentLang].chat['assistant-response-2'],
+                    languages[currentLang].chat['assistant-response-3'],
+                    languages[currentLang].chat['assistant-response-4']
+                ];
+
+                const addMessage = (text, sender) => {
+                    const messageEl = document.createElement('div');
+                    messageEl.classList.add('chat-message', 'p-3', 'rounded-xl', 'max-w-[85%]', 'shadow-md');
+                    if (sender === 'user') {
+                        messageEl.classList.add('user');
+                    } else {
+                        messageEl.classList.add('assistant');
+                    }
+                    messageEl.textContent = text;
+                    chatMessages.appendChild(messageEl);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                };
+
+                const sendUserMessage = () => {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        addMessage(message, 'user');
+                        chatInput.value = '';
+                        // Simulate assistant response
+                        setTimeout(() => {
+                            const randomIndex = Math.floor(Math.random() * assistantResponses.length);
+                            addMessage(assistantResponses[randomIndex], 'assistant');
+                        }, 1000);
+                    }
+                };
+
+                chatSendBtn.addEventListener('click', sendUserMessage);
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        sendUserMessage();
+                    }
+                });
+
+                voiceInputBtn.addEventListener('click', () => {
+                    if (isListening) {
+                        // Stop listening
+                        isListening = false;
+                        chatInput.placeholder = chatPlaceholder;
+                        voiceInputBtn.classList.remove('bg-green-500', 'animate-pulse');
+                        voiceInputBtn.classList.add('gradient-btn');
+                    } else {
+                        // Start listening simulation
+                        isListening = true;
+                        chatInput.placeholder = voicePrompt;
+                        voiceInputBtn.classList.remove('gradient-btn');
+                        voiceInputBtn.classList.add('bg-green-500', 'animate-pulse');
+                        
+                        setTimeout(() => {
+                            // Simulate voice-to-text conversion
+                            chatInput.value = 'How can I control pests naturally?';
+                            isListening = false;
+                            voiceInputBtn.classList.remove('bg-green-500', 'animate-pulse');
+                            voiceInputBtn.classList.add('gradient-btn');
+                            chatInput.placeholder = chatPlaceholder;
+                        }, 2500); // Simulate a 2.5-second listening time
+                    }
+                });
+            };
+
+            const setActiveLink = (hash) => {
+                const navLinks = document.querySelectorAll('.taskbar-link');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active');
+                    }
+                });
+            };
+
+            const handleHashChange = () => {
+                const hash = window.location.hash || '#home';
+                const screenName = hash.substring(1);
+                renderScreen(screenName);
+                setActiveLink(hash);
+            };
+
+            window.addEventListener('hashchange', handleHashChange);
+            handleHashChange(); // Initial load
+        });
+    </script>
+</body>
+</html>
